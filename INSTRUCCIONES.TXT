@@ -1,0 +1,29 @@
+1. CREAR UN ENTORNO VIRTUAL:
+   Windows:
+       python -m venv venv
+       venv\Scripts\activate
+
+   Linux/Mac:
+       python3 -m venv venv
+       source venv/bin/activate
+
+2. INSTALAR DEPENDENCIAS:
+   pip install -r requirements.txt
+
+3. APLICAR MIGRACIONES:
+   python manage.py makemigrations
+   python manage.py migrate
+
+4. CREAR UN SUPERUSUARIO (opcional):
+   python manage.py createsuperuser
+
+5. DESCARGAR LOS MODELOS DE IA:
+   Visita la ruta en el navegador (si tienes vista web), o ejecuta en el navegador:
+       http://127.0.0.1:8000/descargar_modelos/
+
+6. INICIAR EL SERVIDOR:
+   python manage.py runserver
+
+7. ACCEDER A LA APLICACIÓN:
+   Abre tu navegador y visita:
+       http://127.0.0.1:8000/

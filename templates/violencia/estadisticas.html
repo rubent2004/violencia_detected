@@ -1,0 +1,35 @@
+{% extends 'baseV.html' %}
+{% load static %}
+
+{% block head_title %}Estadísticas de Resultados{% endblock head_title %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mt-5">Estadísticas de Resultados</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <canvas id="resultadosChart"></canvas>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        var ctx = document.getElementById('resultadosChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Correctos', 'Incorrectos'],
+                datasets: [{
+                    label: 'Resultados',
+                    data: [{{ correctos }}, {{ incorrectos }}],  // Datos dinámicos
+                    backgroundColor: ['#28a745', '#dc3545'],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    </script>
+    
+</div>
+{% endblock content %}

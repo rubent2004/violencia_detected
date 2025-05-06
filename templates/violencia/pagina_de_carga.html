@@ -1,0 +1,112 @@
+{% extends 'baseV.html' %}
+{% load static %}
+
+{% block head_title %}Página de Carga{% endblock head_title %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mt-5 text-center" style="color: #843ff3;">Videos Recientes</h2>
+    <div class="row mt-4">
+        {% for video in videos %}
+            {% if video.file_path %}  <!-- Verifica si el video tiene un archivo asociado -->
+                <div class="col-md-6 mb-4"> 
+                    <div class="card mb-3" style="max-width: 800px; background-color: #222; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);">
+                        <div class="row g-0">
+                            <!-- Imagen de la miniatura -->
+                            <div class="col-md-4">
+                                {% if video.thumbnail %}
+                                    <img src="{{ video.thumbnail.url }}" class="img-fluid rounded-start" alt="Miniatura" style="height: 250px; width: 100%; object-fit: cover; border-radius: 10px;">
+                                {% else %}
+                                    <img src="{% static 'default-thumbnail.jpg' %}" class="img-fluid rounded-start" alt="Miniatura no disponible" style="height: 250px; width: 100%; object-fit: cover; border-radius: 10px;">
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body text-light">
+                                    <h5 class="card-title" style="font-size: 1.5rem; font-weight: 600;">{{ video.file_path.name }}</h5>
+                                    <p class="card-text" style="font-size: 1rem; color: #bbb;">Predicción:
+                                        {% if video.prediction %}
+                                            <span class="badge badge-warning" style="font-size: 1.25rem; background-color: #ffcc00; color: #000;">
+                                                <i class="fas fa-exclamation-triangle"></i> Contenido Violento
+                                            </span>
+                                        {% else %}
+                                            <span class="badge badge-secondary" style="font-size: 1.25rem; background-color: #555; color: #fff;">
+                                                <i class="fas fa-check-circle"></i> Contenido No Violento
+                                            </span>
+                                        {% endif %}
+                                    </p>
+                                    <!-- Estado del feedback -->
+                                    <p class="card-text">
+                                        {% if video.feedback_status == 'resolved' %}
+                                            <span class="text-info font-weight-bold">
+                                                <i class="fas fa-check-circle"></i> Analizado correctamente como 
+                                                {% if video.prediction %}
+                                                    <span style="color: #ffcc00;">Violencia</span>
+                                                {% else %}
+                                                    <span style="color: #00b0ff;">No Violencia</span>
+                                                {% endif %}
+                                            </span>
+                                        {% elif video.feedback_status == 'incorrect' %}
+                                            <span class="text-danger font-weight-bold">
+                                                <i class="fas fa-times-circle"></i> Feedback Incorrecto
+                                            </span>
+                                        {% else %}
+                                            <!-- Formulario de retroalimentación -->
+                                            <form method="POST" action="{% url 'retroalimentar_video' %}" class="mt-3">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="video_id" value="{{ video.id }}">
+                                                <div class="d-flex justify-content-start gap-3">
+                                                    <button type="submit" name="feedback" value="true" class="btn btn-lg btn-success" style="border-radius: 25px;">Correcto</button>
+                                                    <button type="submit" name="feedback" value="false" class="btn btn-lg btn-danger" style="border-radius: 25px;">Incorrecto</button>
+                                                </div>
+                                            </form>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <!-- Videos Analizados Anteriormente -->
+    <h2 class="mt-5 text-center" style="color: #843ff3;">Videos Analizados Anteriormente</h2>
+    <div class="row mt-4">
+        {% for video in videos %}
+            {% if not video.file_path %}  <!-- Si el video ya no tiene archivo (fue eliminado) -->
+                <div class="col-md-6 mb-4">
+                    <div class="card mb-3" style="max-width: 800px; background-color: #222; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);">
+                        <div class="row g-0">
+                            <div class="col-md-4">
+                                {% if video.thumbnail %}
+                                    <img src="{{ video.thumbnail.url }}" class="img-fluid rounded-start" alt="Miniatura" style="height: 250px; width: 100%; object-fit: cover; border-radius: 10px;">
+                                {% else %}
+                                    <img src="{% static 'default-thumbnail.jpg' %}" class="img-fluid rounded-start" alt="Miniatura no disponible" style="height: 250px; width: 100%; object-fit: cover; border-radius: 10px;">
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body text-light">
+                                    <h5 class="card-title" style="font-size: 1.5rem; font-weight: 600;">{{ video.file_path.name }}</h5>
+                                    <p class="card-text" style="font-size: 1rem; color: #bbb;">
+                                        Este video ha sido analizado anteriormente, pero el archivo ya no está disponible.
+                                    </p>
+                                    <p class="card-text" style="font-size: 1rem; color: #bbb;">
+                                        Analizado como:
+                                        {% if video.prediction %}
+                                            <span style="color: #ffcc00;">Violencia</span>
+                                        {% else %}
+                                            <span style="color: #00b0ff;">No Violencia</span>
+                                        {% endif %}
+                                    </p>
+                                    <!-- Mostrar otros detalles si es necesario -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}
