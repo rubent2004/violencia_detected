@@ -1,89 +1,112 @@
 {% load i18n %}
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block head_title %}{% endblock head_title %}</title>
-     <!-- Favicon -->
-     <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon"> 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> 
-    <link rel="stylesheet" href="{% static 'css/style.css' %}"> <
-    {% block extra_head %}{% endblock extra_head %}
+  <meta charset="UTF-8" />
+  <title>{% block head_title %}Detección de violencia{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+  <style>
+    .navbar-shadow {
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.25);
+      border-bottom: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    .hover-glow:hover {
+      color: #c084fc;
+      transition: all 0.3s ease-in-out;
+      text-shadow: 0 0 5px rgba(192, 132, 252, 0.5);
+    }
+  </style>
+
+  {% block extra_head %}{% endblock %}
 </head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #1f1f1f;">
-        <a class="navbar-brand" href="{% url 'index' %}">Detección de violencia</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<body class="bg-gradient-to-br from-[#0f0f1b] to-black text-white font-sans antialiased">
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'estadisticas' %}"><i class="fas fa-chart-line"></i> {% trans "Estadísticas" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'pagina_de_carga' %}"><i class="fas fa-clipboard"></i> {% trans "Resultados" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'index' %}"><i class="fas fa-upload"></i> {% trans "Subir videos" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'account_logout' %}"><i class="fas fa-sign-out-alt"></i> {% trans "Cerrar sesión" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'account_change_password' %}"><i class="fas fa-lock"></i> {% trans "Cambiar contraseña" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'socialaccount_connections' %}"><i class="fas fa-link"></i> {% trans "Conexiones de cuenta" %}</a>
-                    </li>
-                    {% url 'mfa_index' as mfa_url %}
-                    {% if mfa_url %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ mfa_url }}"><i class="fas fa-shield-alt"></i> {% trans "Autenticación de dos factores" %}</a>
-                        </li>
-                    {% endif %}
-                    {% url 'usersessions_list' as sessions_url %}
-                    {% if sessions_url %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ sessions_url }}"><i class="fas fa-user-clock"></i> {% trans "Sesiones" %}</a>
-                        </li>
-                    {% endif %}
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'account_login' %}"><i class="fas fa-sign-in-alt"></i> {% trans "Iniciar sesión" %}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'account_signup' %}"><i class="fas fa-user-plus"></i> {% trans "Registrarse" %}</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
-    </nav>
+<!-- 🌟 NAVBAR -->
+<nav class="bg-[#0f0f1b]/90 navbar-shadow backdrop-blur-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <!-- Logo + Nombre -->
+    <a href="{% url 'index' %}" class="flex items-center gap-3 hover-glow text-purple-400 text-lg font-bold animate__animated animate__fadeInLeft">
+      <i class="fa-solid fa-shield-halved text-xl"></i>
+      <span>Detección de Violencia</span>
+    </a>
 
-    <!-- Contenido principal -->
-    <div class="container">
-        {% block body %}
-            {% if messages %}
-                <div class="alert alert-danger mt-4">
-                    <strong>{% trans "Mensajes:" %}</strong>
-                    <ul>
-                        {% for message in messages %}<li>{{ message }}</li>{% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
-            {% block content %}{% endblock content %}
-        {% endblock body %}
+    <!-- Menú Desktop -->
+    <div class="hidden md:flex items-center gap-6 text-sm font-medium">
+      <a href="{% url 'estadisticas' %}" class="hover-glow flex items-center gap-1"><i class="fa-solid fa-chart-simple"></i> Estadísticas</a>
+      <a href="{% url 'pagina_de_carga' %}" class="hover-glow flex items-center gap-1"><i class="fa-regular fa-folder-open"></i> Resultados</a>
+      <a href="{% url 'index' %}" class="hover-glow flex items-center gap-1"><i class="fa-solid fa-cloud-arrow-up"></i> Subir Videos</a>
+      <a href="{% url 'account_change_password' %}" class="hover-glow flex items-center gap-1"><i class="fa-solid fa-lock"></i> Contraseña</a>
+      <a href="{% url 'socialaccount_connections' %}" class="hover-glow flex items-center gap-1"><i class="fa-solid fa-link"></i> Conexiones</a>
+      <a href="{% url 'account_logout' %}" class="text-red-400 hover:text-red-500 flex items-center gap-1"><i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar sesión</a>
     </div>
 
-    {% block extra_body %}{% endblock extra_body %}
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <!-- Botón móvil -->
+    <button id="openSidebar" class="md:hidden text-white text-2xl">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+</nav>
+
+<!-- 📱 SIDEBAR MÓVIL -->
+<div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-[#1a1a2e] z-50 transform -translate-x-full transition-transform duration-300 md:hidden shadow-lg">
+  <div class="p-5 flex items-center gap-2 border-b border-purple-700 text-purple-300 font-bold text-lg">
+    <i class="fas fa-shield-halved"></i> Menú
+  </div>
+  <nav class="p-4 space-y-4 text-base font-medium">
+    <a href="{% url 'estadisticas' %}" class="flex items-center gap-2 hover-glow"><i class="fas fa-chart-simple"></i> Estadísticas</a>
+    <a href="{% url 'pagina_de_carga' %}" class="flex items-center gap-2 hover-glow"><i class="fa-regular fa-folder-open"></i> Resultados</a>
+    <a href="{% url 'index' %}" class="flex items-center gap-2 hover-glow"><i class="fa-solid fa-cloud-arrow-up"></i> Subir Videos</a>
+    <a href="{% url 'account_change_password' %}" class="flex items-center gap-2 hover-glow"><i class="fa-solid fa-lock"></i> Contraseña</a>
+    <a href="{% url 'socialaccount_connections' %}" class="flex items-center gap-2 hover-glow"><i class="fa-solid fa-link"></i> Conexiones</a>
+    <a href="{% url 'account_logout' %}" class="text-red-400 hover:text-red-500 flex items-center gap-2"><i class="fas fa-arrow-right-from-bracket"></i> Cerrar sesión</a>
+  </nav>
+</div>
+
+<!-- 🛑 OVERLAY -->
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-40 hidden z-40 md:hidden"></div>
+
+<!-- 🧠 CONTENIDO -->
+<main class="max-w-7xl mx-auto px-4 py-6 relative z-10">
+  {% if messages %}
+    <div class="mb-6">
+      {% for message in messages %}
+        <div class="p-4 bg-red-100 border border-red-300 text-red-700 rounded shadow-sm">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% block body %}
+    {% block content %}{% endblock %}
+  {% endblock %}
+</main>
+
+<!-- 🔧 SIDEBAR LOGIC -->
+<script>
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const openSidebar = document.getElementById('openSidebar');
+
+  openSidebar?.addEventListener('click', () => {
+    sidebar.classList.remove('-translate-x-full');
+    overlay.classList.remove('hidden');
+  });
+
+  overlay?.addEventListener('click', () => {
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
+  });
+</script>
+
+{% block extra_body %}{% endblock %}
 </body>
 </html>
