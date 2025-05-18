@@ -1,90 +1,183 @@
 {% extends "account/base_entrance.html" %}
 {% load i18n %}
 {% load allauth account %}
+{% load socialaccount %}
 
 {% block head_title %}
     {% trans "Sign In" %}
 {% endblock head_title %}
 
 {% block content %}
-    <div class="container mt-5">
-        <div class="card shadow-lg p-4 rounded-5" style="background-color: rgba(50, 50, 50, 0.9); border: none;">
-            {% element h1 class="text-center text-purple mb-4" %}
-                <i class="fas fa-user-lock"></i> {% trans "Sign In" %}
-            {% endelement %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
-            {% if not SOCIALACCOUNT_ONLY %}
-                {% setvar link %}
-                    <a href="{{ signup_url }}" class="text-purple">
-                {% endsetvar %}
-                {% setvar end_link %}
-                    </a>
-                {% endsetvar %}
-                {% element p class="text-light text-center mb-4" %}
-                    {% blocktranslate %}If you have not created an account yet, please {{ link }}sign up{{ end_link }} first.{% endblocktranslate %}
-                {% endelement %}
-                {% url 'account_login' as login_url %}
-                {% element form form=form method="post" action=login_url tags="entrance,login" %}
-                    {% slot body %}
-                        {% csrf_token %}
-                        <div class="mb-4">
-                            <div class="input-group">
-                                <input type="text" name="login" class="form-control" placeholder="{% trans "Email or Username" %}" required>
-                                <span class="input-group-text bg-purple text-white">
-                                    <i class="fas fa-user"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <div class="input-group">
-                                <input type="password" name="password" class="form-control" placeholder="{% trans "Password" %}" required>
-                                <span class="input-group-text bg-purple text-white">
-                                    <i class="fas fa-lock"></i>
-                                </span>
-                            </div>
-                        </div>
-                        {{ redirect_field }}
-                    {% endslot %}
-                    {% slot actions %}
-                        <div class="text-center">
-                            {% element button type="submit" class="btn btn-purple btn-lg w-100 rounded-pill" %}
-                                <i class="fas fa-sign-in-alt"></i> {% trans "Sign In" %}
-                            {% endelement %}
-                        </div>
-                    {% endslot %}
-                {% endelement %}
-            {% endif %}
+<style>
+    body {
+        background: radial-gradient(circle at top left, #0f0f1b, #111111);
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
 
-            {% if LOGIN_BY_CODE_ENABLED or PASSKEY_LOGIN_ENABLED %}
-                <hr class="bg-light my-4">
-                <div class="text-center">
-                    {% if PASSKEY_LOGIN_ENABLED %}
-                        <button type="submit" form="mfa_login" id="passkey_login" class="btn btn-outline-purple mb-2">
-                            <i class="fas fa-key"></i> {% trans "Sign in with a passkey" %}
-                        </button>
-                    {% endif %}
-                    {% if LOGIN_BY_CODE_ENABLED %}
-                        <a href="{{ request_login_code_url }}" class="btn btn-outline-purple">
-                            <i class="fas fa-envelope"></i> {% trans "Mail me a sign-in code" %}
-                        </a>
-                    {% endif %}
+    .login-container {
+        max-width: 420px;
+        margin: 60px auto;
+        background: rgba(255, 255, 255, 0.05);
+        padding: 2.5rem;
+        border-radius: 1.5rem;
+        box-shadow:
+            0 0 0 1px rgba(168, 85, 247, 0.15),
+            0 0 20px 6px rgba(168, 85, 247, 0.2);
+        backdrop-filter: blur(12px);
+        color: white;
+        animation: fadeInUp 0.7s ease;
+    }
+
+    .login-container h1 {
+        font-size: 2rem;
+        text-align: center;
+        margin-bottom: 1.8rem;
+        color: #c084fc;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .form-group i {
+        position: absolute;
+        top: 50%;
+        left: 1rem;
+        transform: translateY(-50%);
+        color: #a855f7;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem 0.75rem 2.8rem;
+        border-radius: 0.75rem;
+        border: 1px solid #9333ea;
+        background-color: #1e293b;
+        color: white;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .form-control::placeholder {
+        color: #a5b4fc;
+    }
+
+    .form-control:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.4);
+    }
+
+    .btn-submit {
+        background-color: #9333ea;
+        color: white;
+        font-weight: bold;
+        border: none;
+        padding: 0.75rem;
+        width: 100%;
+        border-radius: 0.75rem;
+        transition: transform 0.3s ease, background-color 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .btn-submit:hover {
+        background-color: #7e22ce;
+        transform: scale(1.03);
+    }
+
+    .social-divider {
+        text-align: center;
+        margin: 2rem 0 1rem;
+        color: #ccc;
+    }
+
+    .btn-google {
+        background: white;
+        color: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 0.7rem;
+        border-radius: 0.75rem;
+        width: 100%;
+        font-weight: 500;
+        border: 1px solid #ddd;
+        transition: background 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .btn-google:hover {
+        background-color: #eee;
+    }
+
+    .btn-google img {
+        width: 22px;
+        height: 22px;
+    }
+
+    .signup-link {
+        text-align: center;
+        color: #a5b4fc;
+        margin-top: 1.8rem;
+        font-size: 0.95rem;
+    }
+
+    .signup-link a {
+        color: #c084fc;
+        text-decoration: underline;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="login-container">
+    <h1><i class="fas fa-user-lock me-2"></i> {% trans "Sign In" %}</h1>
+
+    {% if not SOCIALACCOUNT_ONLY %}
+        {% url 'account_login' as login_url %}
+        {% element form form=form method="post" action=login_url tags="entrance,login" %}
+            {% slot body %}
+                {% csrf_token %}
+                <div class="form-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="text" name="login" class="form-control" placeholder="{% trans 'Email or Username' %}" required>
                 </div>
-            {% endif %}
-
-            {% if SOCIALACCOUNT_ENABLED %}
-                <div class="text-center my-4">
-                    <p class="text-light">{% trans "Or sign in with" %}</p>
-                   
-                    {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
-                    <div class="d-flex justify-content-center mb-2">
-                        <a href="#" class="btn btn-google mx-1">
-                            <i class="fab fa-google"></i> <span class="d-none d-md-inline">Google</span>
-                        </a>
-                    </div>
+                <div class="form-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" name="password" class="form-control" placeholder="{% trans 'Password' %}" required>
                 </div>
-            {% endif %}
-        </div>
-    </div>
+                {{ redirect_field }}
+            {% endslot %}
+            {% slot actions %}
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-sign-in-alt me-2"></i> {% trans "Sign In" %}
+                </button>
+            {% endslot %}
+        {% endelement %}
+    {% endif %}
+
+    {% if SOCIALACCOUNT_ENABLED %}
+        <div class="social-divider">{% trans "Or sign in with" %}</div>
+        <a href="{% provider_login_url 'google' %}" class="btn-google">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google">
+            Google
+        </a>
+    {% endif %}
+
+    <p class="signup-link">
+        {% setvar link %}<a href="{{ signup_url }}">{% endsetvar %}
+        {% setvar end_link %}</a>{% endsetvar %}
+        {% blocktranslate %}If you have not created an account yet, please {{ link }}sign up{{ end_link }} first.{% endblocktranslate %}
+    </p>
+</div>
 {% endblock content %}
 
 {% block extra_body %}
